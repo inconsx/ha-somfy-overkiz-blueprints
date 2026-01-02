@@ -53,6 +53,9 @@ Helpers can be created:
 ### YAML Example (helpers.yaml)
 Below is an **anonymized example** showing how helpers should be defined.
 
+### Include the helpers.yaml code in your configuration.yaml (Required)
+input_number: !include helpers.yaml
+
 ```yaml
 cover_pos_livingroom_left:
   min: 0
@@ -68,7 +71,3 @@ cover_pos_bedroom:
   min: 0
   max: 100
   step: 1
-
-## Include the helpers.yaml code in your configuration.yaml (Required)
-input_number: !include helpers.yaml
-
