@@ -42,28 +42,33 @@ Each cover is handled **individually** (no group logic).
 
 ---
 
-## How It Works
-- The blueprint maps covers to helpers by **list order**
-- The first cover uses the first helper, the second cover the second helper, etc.
-- Correct order is required for proper operation
+## Helper Configuration (Required)
 
----
+This blueprint **requires one `input_number` helper per cover** to store the last known position.
 
-## Setup Overview
-1. Create one `input_number` helper per cover (min: 0, max: 100)
-2. Import the blueprint using the GitHub RAW URL
-3. Create an automation from the blueprint
-4. Select covers and helpers in the same order
-5. Set a restart delay (recommended: 10–20 seconds)
+Helpers can be created:
+- via **Home Assistant UI** *(recommended)*  
+- or via **YAML configuration**
 
----
+### YAML Example (helpers.yaml)
+Below is an **anonymized example** showing how helpers should be defined.
 
-## Notes
-- This blueprint does **not** create helpers automatically
-- This blueprint does **not** create UI cards
-- Blueprint updates do not modify existing automations
+```yaml
+cover_pos_livingroom_left:
+  min: 0
+  max: 100
+  step: 1
 
----
+cover_pos_livingroom_right:
+  min: 0
+  max: 100
+  step: 1
 
-## License
-MIT License
+cover_pos_bedroom:
+  min: 0
+  max: 100
+  step: 1
+
+## Include the helpers.yaml code in your configuration.yaml (Required)
+input_number: !include helpers.yaml
+
