@@ -1,0 +1,78 @@
+blueprint:
+  name: Somfy / TaHoma – Cover Position Restore (separat)
+  description: >
+    Speichert die letzte Position von Somfy/Overkiz Covers
+    und stellt sie nach Home-Assistant-Neustart wieder her.
+  domain: automation
+
+  input:
+    covers:
+      name: Covers
+      description: Alle Somfy / TaHoma Cover-Entities
+      selector:
+        entity:
+          domain: cover
+          multiple: true
+
+    position_helpers:
+      name: Positions-Helper (input_number)
+      description: input_number in gleicher Reihenfolge wie die Covers
+      selector:
+        entity:
+          domain: input_number
+          multiple: true
+
+    restart_delay:
+      name: Verzögerung nach Neustart (Sekunden)
+      default: 15
+      selector:
+        number:
+          min: 5
+          max: 60
+          step: 5
+          unit_of_measurement: s
+
+mode: queued
+
+trigger:
+  - platform: state
+    entity_id: !input covers
+
+  - platform: homeassistant
+    event: start
+
+variables:
+  covers: !input covers
+  helpers: !input position_helpers
+
+action:
+  - choose:
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.platform == 'state'
+                 and trigger.entity_id in covers
+                 and state_attr(trigger.entity_id,'current_position') is not none }}
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: >
+                {{ helpers[covers.index(trigger.entity_id)] }}
+            data:
+              value: "{{ state_attr(trigger.entity_id,'current_position') }}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.platform == 'homeassistant' }}"
+        sequence:
+          - delay:
+              seconds: !input restart_delay
+          - repeat:
+              count: "{{ covers | length }}"
+              sequence:
+                - service: cover.set_cover_position
+                  target:
+                    entity_id: "{{ covers[repeat.index-1] }}"
+                  data:
+                    position: "{{ states(helpers[repeat.index-1]) | int }}"
